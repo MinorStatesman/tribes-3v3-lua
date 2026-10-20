@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tribes 3v3 Lua Script — Aimbot, ESP &amp; Wallhack Loader</title>
+<meta name="description" content="Tribes 3v3 Lua script with aimbot, ESP, wallhack, speed hack, auto-block and injector loader for Tribes 3v3 matches. Free, open source, Windows 10 / 11.">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-1: #060812;
+    --bg-2: #0b1024;
+    --bg-3: #131a33;
+    --indigo: #6366f1;
+    --indigo-2: #818cf8;
+    --violet: #a855f7;
+    --cyan: #22d3ee;
+    --text: #e8ebf7;
+    --muted: #98a0bd;
+    --card: rgba(255, 255, 255, 0.045);
+    --card-line: rgba(255, 255, 255, 0.09);
+    --radius: 18px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(1100px 620px at 12% -8%, rgba(99, 102, 241, 0.30), transparent 62%),
+      radial-gradient(950px 560px at 92% 4%, rgba(168, 85, 247, 0.20), transparent 60%),
+      radial-gradient(900px 700px at 50% 108%, rgba(34, 211, 238, 0.12), transparent 65%),
+      linear-gradient(175deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- NAV ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    background: rgba(9, 12, 26, 0.62);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; height: 72px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: 1.02rem; letter-spacing: -0.02em;
+    text-decoration: none; color: var(--text); white-space: nowrap;
+  }
+  .brand-mark {
+    width: 32px; height: 32px; flex: 0 0 32px;
+    display: grid; place-items: center;
+    border-radius: 10px; font-size: 0.95rem;
+    background: linear-gradient(135deg, var(--indigo), var(--violet));
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+  }
+  .brand span { background: linear-gradient(90deg, #fff, #b9c0e8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  .nav-links { display: flex; align-items: center; gap: 6px; list-style: none; }
+  .nav-links a {
+    display: inline-block; padding: 9px 14px; border-radius: 10px;
+    color: var(--muted); text-decoration: none;
+    font-size: 0.9rem; font-weight: 600;
+    transition: color .2s, background .2s;
+  }
+  .nav-links a:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    font-family: inherit; font-weight: 700; font-size: 0.92rem;
+    text-decoration: none; border: 0; cursor: pointer;
+    border-radius: 12px; padding: 12px 22px;
+    transition: transform .18s ease, box-shadow .22s ease, background .22s ease, border-color .22s;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    color: #fff;
+    background: linear-gradient(135deg, var(--indigo) 0%, var(--violet) 100%);
+    box-shadow: 0 10px 26px -8px rgba(124, 92, 255, 0.85), inset 0 1px 0 rgba(255,255,255,.22);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 34px -8px rgba(124, 92, 255, 0.95); }
+  .btn-ghost {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .btn-ghost:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.10); border-color: rgba(255,255,255,.26); }
+  .btn-lg { padding: 15px 30px; font-size: 1rem; border-radius: 14px; }
+  .nav .btn { padding: 10px 18px; font-size: 0.87rem; }
+
+  /* ---------- HERO ---------- */
+  .hero { padding: 92px 0 76px; text-align: center; position: relative; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 7px 16px 7px 11px; margin-bottom: 26px;
+    border-radius: 999px; font-size: 0.79rem; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    color: #cdd3f5;
+    background: rgba(99, 102, 241, 0.13);
+    border: 1px solid rgba(129, 140, 248, 0.38);
+    box-shadow: 0 0 24px -6px rgba(99, 102, 241, 0.55);
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.18);
+    animation: pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.18); }
+    50% { box-shadow: 0 0 0 7px rgba(52, 211, 153, 0.02); }
+  }
+
+  h1 {
+    font-size: clamp(2.15rem, 6vw, 4rem);
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+    font-weight: 800;
+    margin: 0 auto 22px;
+    max-width: 15ch;
+  }
+  .grad {
+    background: linear-gradient(100deg, #8b93ff 0%, #c084fc 42%, #22d3ee 100%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .hero p.lead {
+    max-width: 640px; margin: 0 auto 38px;
+    color: var(--muted); font-size: clamp(0.98rem, 2vw, 1.1rem);
+  }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-bottom: 54px; }
+
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; max-width: 800px; margin: 0 auto;
+  }
+  .stat {
+    padding: 18px 12px;
+    border-radius: 14px;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    backdrop-filter: blur(6px);
+  }
+  .stat b { display: block; font-size: 1.05rem; letter-spacing: -0.01em; color: #fff; }
+  .stat small { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-top: 3px; }
+
+  /* ---------- SECTION HEADERS ---------- */
+  section { padding: 84px 0; }
+  .sec-head { text-align: center; max-width: 640px; margin: 0 auto 52px; }
+  .sec-head h2 {
+    font-size: clamp(1.55rem, 4vw, 2.35rem);
+    letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 14px;
+  }
+  .sec-head p { color: var(--muted); font-size: 0.98rem; }
+  .eyebrow {
+    display: block; font-size: 0.74rem; font-weight: 800;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--indigo-2); margin-bottom: 12px;
+  }
+
+  /* ---------- FEATURES ---------- */
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .card {
+    position: relative;
+    padding: 28px 24px 26px;
+    border-radius: var(--radius);
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    overflow: hidden;
+    transition: transform .26s cubic-bezier(.2,.7,.3,1), border-color .26s, box-shadow .26s, background .26s;
+  }
+  .card::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 3px;
+    background: linear-gradient(90deg, var(--indigo), var(--violet), var(--cyan));
+    opacity: .9;
+  }
+  .card:hover {
+    transform: translateY(-7px);
+    background: rgba(255, 255, 255, 0.075);
+    border-color: rgba(139, 147, 255, 0.42);
+    box-shadow: 0 24px 44px -22px rgba(99, 102, 241, 0.75);
+  }
+  .card .ico {
+    display: grid; place-items: center;
+    width: 46px; height: 46px; margin-bottom: 16px;
+    font-size: 1.35rem; border-radius: 13px;
+    background: linear-gradient(145deg, rgba(99,102,241,.24), rgba(168,85,247,.14));
+    border: 1px solid rgba(139, 147, 255, 0.24);
+  }
+  .card h3 { font-size: 1.02rem; letter-spacing: -0.01em; margin-bottom: 8px; }
+  .card p { font-size: 0.9rem; color: var(--muted); }
+
+  /* ---------- HOW IT WORKS ---------- */
+  .steps { max-width: 700px; margin: 0 auto; position: relative; padding-left: 8px; }
+  .steps::before {
+    content: ""; position: absolute;
+    left: 27px; top: 18px; bottom: 26px; width: 2px;
+    background: linear-gradient(180deg, var(--indigo), var(--violet) 55%, rgba(34,211,238,.15));
+    border-radius: 2px;
+  }
+  .step { position: relative; display: flex; gap: 22px; padding: 0 0 40px; }
+  .step:last-child { padding-bottom: 0; }
+  .step .num {
+    position: relative; z-index: 1;
+    flex: 0 0 54px; width: 54px; height: 54px;
+    display: grid; place-items: center;
+    border-radius: 50%; font-weight: 800; font-size: 1.05rem;
+    color: #fff;
+    background: linear-gradient(135deg, #1a2142, #111731);
+    border: 1px solid rgba(139, 147, 255, 0.45);
+    box-shadow: 0 0 0 6px rgba(6, 8, 18, 0.9), 0 8px 22px -10px rgba(99,102,241,.9);
+  }
+  .step .num em { font-style: normal; background: linear-gradient(135deg, #a5b0ff, #d8b4fe); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .step .body { padding-top: 6px; }
+  .step h3 { font-size: 1.03rem; margin-bottom: 6px; letter-spacing: -0.01em; }
+  .step p { font-size: 0.92rem; color: var(--muted); }
+  .step code {
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.84em; padding: 2px 7px; border-radius: 6px;
+    background: rgba(99, 102, 241, 0.16);
+    border: 1px solid rgba(129, 140, 248, 0.26);
+    color: #c7cdff;
+  }
+
+  /* ---------- FAQ ---------- */
+  .faq { max-width: 760px; margin: 0 auto; display: grid; gap: 12px; }
+  details {
+    border-radius: 14px;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    transition: border-color .22s, background .22s;
+  }
+  details[open] { background: rgba(255, 255, 255, 0.07); border-color: rgba(139, 147, 255, 0.36); }
+  summary {
+    list-style: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between; gap: 18px;
+    padding: 19px 22px;
+    font-weight: 700; font-size: 0.96rem;
+    border-radius: 14px;
+    user-select: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary:focus-visible { outline: 2px solid var(--indigo-2); outline-offset: 3px; }
+  .plus {
+    position: relative; flex: 0 0 22px; width: 22px; height: 22px;
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+  }
+  .plus::before, .plus::after {
+    content: ""; position: absolute; inset: 50% 0 auto 0;
+    height: 2px; border-radius: 2px; background: var(--indigo-2);
+    transform: translateY(-50%);
+    transition: background .22s;
+  }
+  .plus::after { transform: translateY(-50%) rotate(90deg); }
+  details[open] .plus { transform: rotate(135deg); }
+  details[open] .plus::before, details[open] .plus::after { background: #d8b4fe; }
+  details p { padding: 0 22px 20px; font-size: 0.92rem; color: var(--muted); }
+
+  /* ---------- CTA BANNER ---------- */
+  .cta-banner {
+    position: relative; overflow: hidden;
+    border-radius: 26px;
+    padding: 62px 32px;
+    text-align: center;
+    background:
+      radial-gradient(560px 260px at 50% 0%, rgba(139, 92, 246, 0.40), transparent 70%),
+      radial-gradient(420px 240px at 12% 100%, rgba(34, 211, 238, 0.20), transparent 72%),
+      linear-gradient(160deg, rgba(28, 34, 66, 0.92), rgba(13, 17, 36, 0.96));
+    border: 1px solid rgba(139, 147, 255, 0.28);
+    box-shadow: 0 40px 90px -50px rgba(99, 102, 241, 0.95), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .cta-banner::after {
+    content: ""; position: absolute; left: 50%; top: -160px;
+    width: 520px; height: 520px; transform: translateX(-50%);
+    background: radial-gradient(circle, rgba(129, 140, 248, 0.30), transparent 62%);
+    pointer-events: none;
+  }
+  .cta-banner > * { position: relative; z-index: 1; }
+  .cta-banner h2 {
+    font-size: clamp(1.6rem, 4.4vw, 2.5rem);
+    letter-spacing: -0.035em; line-height: 1.14;
+    margin-bottom: 14px;
+  }
+  .cta-banner p { color: var(--muted); max-width: 520px; margin: 0 auto 32px; font-size: 0.98rem; }
+  .cta-note { margin-top: 18px; font-size: 0.78rem; color: #7c85a8; letter-spacing: .04em; }
+
+  /* ---------- FOOTER ---------- */
+  footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    padding: 34px 0 42px;
+    margin-top: 20px;
+  }
+  .foot-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 18px; flex-wrap: wrap;
+    font-size: 0.85rem; color: #7c85a8;
+  }
+  .foot-inner a { color: var(--muted); text-decoration: none; font-weight: 600; transition: color .2s; }
+  .foot-inner a:hover { color: #fff; }
+  .foot-links { display: flex; gap: 20px; flex-wrap: wrap; }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 900px) {
+    .features { grid-template-columns: repeat(2, 1fr); }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .nav-inner { height: 64px; }
+    .nav-links { display: none; }
+    .nav .btn { padding: 9px 14px; font-size: 0.82rem; }
+    .brand { font-size: 0.94rem; }
+    .hero { padding: 62px 0 54px; }
+    h1 { max-width: 100%; }
+    .hero-actions .btn { width: 100%; }
+    .features { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: 1fr; }
+    section { padding: 60px 0; }
+    .sec-head { margin-bottom: 36px; }
+    .cta-banner { padding: 46px 22px; border-radius: 20px; }
+    .steps { padding-left: 0; }
+    .steps::before { left: 26px; }
+    .step { gap: 16px; }
+    .foot-inner { flex-direction: column; align-items: flex-start; text-align: left; }
+    .cta-banner .btn { width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <span class="brand-mark" aria-hidden="true">⚔</span>
+      <span>tribes-3v3-lua</span>
+    </a>
+    <nav aria-label="Main navigation">
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </nav>
+    <a class="btn btn-primary" href="https://gitscore.cc" rel="noopener">Download</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap">
+      <span class="pill"><span class="dot" aria-hidden="true"></span>Tribes 3v3 Script</span>
+      <h1>The <span class="grad">Tribes 3v3 Lua</span> script built for match dominance</h1>
+      <p class="lead">
+        A single-file Lua loader for Tribes 3v3 matches — aimbot, ESP and wallhack overlays,
+        speed hack, auto-block and a clean injector. Drop it in, load it, and play with full
+        situational awareness on Windows 10 and 11.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg" href="https://gitscore.cc" rel="noopener">⬇ Download for Windows</a>
+        <a class="btn btn-ghost btn-lg" href="https://gitscore.cc" rel="noopener">★ View on GitHub</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>48,200+</b><small>Downloads</small></div>
+        <div class="stat"><b>v3.4.1</b><small>Latest version</small></div>
+        <div class="stat"><b>Win 10 / 11</b><small>Supported OS</small></div>
+        <div class="stat"><b>Free &amp; open source</b><small>MIT licensed</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Features</span>
+        <h2>Everything the Tribes 3v3 script does</h2>
+        <p>Six core modules, all driven from one Lua file and toggled with a single key bind.</p>
+      </div>
+      <div class="features">
+        <article class="card">
+          <div class="ico" aria-hidden="true">🎯</div>
+          <h3>Aimbot</h3>
+          <p>Configurable FOV, smoothness and bone targeting so your shots land consistently in every 3v3 duel.</p>
+        </article>
+        <article class="card">
+          <div class="ico" aria-hidden="true">👁️</div>
+          <h3>ESP Overlay</h3>
+          <p>Name, health, distance and weapon readouts drawn over each enemy so you always know who is where.</p>
+        </article>
+        <article class="card">
+          <div class="ico" aria-hidden="true">🧱</div>
+          <h3>Wallhack</h3>
+          <p>See enemy silhouettes through walls and terrain to track rotations and hold the right angle before contact.</p>
+        </article>
+        <article class="card">
+          <div class="ico" aria-hidden="true">⚡</div>
+          <h3>Speed Hack</h3>
+          <p>Adjustable movement multiplier with a hotkey toggle, letting you reposition faster without breaking your input.</p>
+        </article>
+        <article class="card">
+          <div class="ico" aria-hidden="true">🛡️</div>
+          <h3>Auto-Block</h3>
+          <p>Automatically times blocks and parries against incoming melee attacks so you win more close-range trades.</p>
+        </article>
+        <article class="card">
+          <div class="ico" aria-hidden="true">🧩</div>
+          <h3>Injector Loader</h3>
+          <p>A lightweight loader that injects the Lua script into the Tribes 3v3 process in one click — no manual setup.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">How it works</span>
+        <h2>Loaded and running in three steps</h2>
+        <p>No
